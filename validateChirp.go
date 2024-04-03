@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
@@ -11,13 +12,11 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	type requestParams struct {
 		Body string `json:"body"`
 	}
-
 	type errorStruct struct {
 		Error string `json:"error"`
 	}
-
-	type validParams struct {
-		Valid bool `json:"valid"`
+	type cleanParams struct {
+		CleanedBody string `json:"cleaned_body"`
 	}
 
 	var requestBody requestParams
@@ -27,21 +26,10 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("Error while json decoding: %s", err.Error())
-
 		respBody := errorStruct{
 			Error: "Something went wrong",
 		}
-
-		dat, err := json.Marshal(respBody)
-		if err != nil {
-			log.Printf("Error while json marshalling: %s", err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(dat)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithJSON(w, http.StatusInternalServerError, respBody)
 		return
 	}
 
@@ -49,31 +37,39 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 		respBody := errorStruct{
 			Error: "Chirp is too long",
 		}
-		dat, err := json.Marshal(respBody)
-		if err != nil {
-			log.Printf("Error while json marshalling: %s", err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(dat)
-		w.WriteHeader(http.StatusBadRequest)
+		respondWithJSON(w, http.StatusBadRequest, respBody)
 		return
 	}
 
-	respBody := validParams{
-		Valid: true,
+	splitBody := strings.Split(requestBody.Body, " ")
+	for i := 0; i < len(splitBody); i++ {
+		if strings.ToLower(splitBody[i]) == "kerfuffle" {
+			splitBody[i] = "****"
+		}
+		if strings.ToLower(splitBody[i]) == "sharbert" {
+			splitBody[i] = "****"
+		}
+		if strings.ToLower(splitBody[i]) == "fornax" {
+			splitBody[i] = "****"
+		}
 	}
+	cleanedBody := strings.Join(splitBody, " ")
 
+	respBody := cleanParams{
+		CleanedBody: cleanedBody,
+	}
+	respondWithJSON(w, http.StatusOK, respBody)
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, respBody interface{}) {
 	dat, err := json.Marshal(respBody)
-
 	if err != nil {
 		log.Printf("Error while json marshalling: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(dat)
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(code)
 }
