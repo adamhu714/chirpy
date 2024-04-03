@@ -13,11 +13,11 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type errorStruct struct {
-		Error string
+		Error string `json:"error"`
 	}
 
 	type validParams struct {
-		Valid bool
+		Valid bool `json:"valid"`
 	}
 
 	var requestBody requestParams
