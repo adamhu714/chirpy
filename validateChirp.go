@@ -33,6 +33,14 @@ func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(requestBody.Body) == 0 {
+		respBody := errorStruct{
+			Error: "Chirp message not provided",
+		}
+		respondWithJSON(w, http.StatusBadRequest, respBody)
+		return
+	}
+
 	if len(requestBody.Body) > 140 {
 		respBody := errorStruct{
 			Error: "Chirp is too long",
