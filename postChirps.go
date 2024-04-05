@@ -10,7 +10,7 @@ import (
 	"github.com/adamhu714/chirpy/internal/database"
 )
 
-func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
+func handlerPostChirps(w http.ResponseWriter, r *http.Request) {
 	body, err := validateChirp(w, r)
 	if err != nil {
 		return
