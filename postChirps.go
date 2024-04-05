@@ -5,9 +5,51 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/adamhu714/chirpy/internal/database"
 )
 
 func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
+	body, err := validateChirp(w, r)
+	if err != nil {
+		return
+	}
+
+	// connect database
+	db, err := database.NewDB("database.json")
+	if err != nil {
+		log.Printf("Error connecting database: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = db.CreateChirp(body)
+	if err != nil {
+		log.Printf("Error adding chirp to database: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	chirps, err := db.GetChirps()
+	if err != nil {
+		log.Printf("Error adding chirp to database: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	respChirp := chirps[len(chirps)-1]
+	data, err := json.Marshal(respChirp)
+	if err != nil {
+		log.Printf("Error while json marshalling: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(data)
+}
+
+func validateChirp(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	type requestParams struct {
 		Body string `json:"body"`
@@ -15,9 +57,9 @@ func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 	type errorStruct struct {
 		Error string `json:"error"`
 	}
-	type cleanParams struct {
-		CleanedBody string `json:"cleaned_body"`
-	}
+	// type cleanParams struct {
+	// 	CleanedBody string `json:"cleaned_body"`
+	// }
 
 	var requestBody requestParams
 
@@ -30,7 +72,7 @@ func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 			Error: "Something went wrong",
 		}
 		respondWithJSON(w, http.StatusInternalServerError, respBody)
-		return
+		return "", err
 	}
 
 	if len(requestBody.Body) == 0 {
@@ -38,7 +80,7 @@ func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 			Error: "Chirp message not provided",
 		}
 		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return
+		return "", err
 	}
 
 	if len(requestBody.Body) > 140 {
@@ -46,7 +88,7 @@ func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 			Error: "Chirp is too long",
 		}
 		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return
+		return "", err
 	}
 
 	splitBody := strings.Split(requestBody.Body, " ")
@@ -63,10 +105,7 @@ func handlerPostChirp(w http.ResponseWriter, r *http.Request) {
 	}
 	cleanedBody := strings.Join(splitBody, " ")
 
-	respBody := cleanParams{
-		CleanedBody: cleanedBody,
-	}
-	respondWithJSON(w, http.StatusOK, respBody)
+	return cleanedBody, nil
 }
 
 func respondWithJSON(w http.ResponseWriter, code int, respBody interface{}) {
