@@ -118,6 +118,6 @@ func respondWithJSON(w http.ResponseWriter, code int, respBody interface{}) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(dat)
 	w.WriteHeader(code)
+	w.Write(dat)
 }
