@@ -24,7 +24,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("/api/reset", apiCfg.resetHandler)
 	mux.HandleFunc("POST /api/chirps", handlerPostChirp)
-	mux.HandleFunc("GET /api/chirps", handlerGetChirp)
+	mux.HandleFunc("GET /api/chirps", handlerGetChirps)
 
 	corsMux := middlewareCors(mux)
 

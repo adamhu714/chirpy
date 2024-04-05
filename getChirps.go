@@ -8,7 +8,7 @@ import (
 	"github.com/adamhu714/chirpy/internal/database"
 )
 
-func handlerGetChirp(w http.ResponseWriter, r *http.Request) {
+func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Printf("handlerGetChirps: Error connecting database")
