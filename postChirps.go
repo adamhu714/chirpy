@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strings"
@@ -80,7 +81,7 @@ func validateChirp(w http.ResponseWriter, r *http.Request) (string, error) {
 			Error: "Chirp message not provided",
 		}
 		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return "", err
+		return "", errors.New("chirp message not provided")
 	}
 
 	if len(requestBody.Body) > 140 {
@@ -88,7 +89,7 @@ func validateChirp(w http.ResponseWriter, r *http.Request) (string, error) {
 			Error: "Chirp is too long",
 		}
 		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return "", err
+		return "", errors.New("chirp is too long")
 	}
 
 	splitBody := strings.Split(requestBody.Body, " ")
