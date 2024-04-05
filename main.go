@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 type apiConfig struct {
@@ -13,6 +15,13 @@ type apiConfig struct {
 func main() {
 	const port = "8080"
 	const filepathRoot = "."
+
+	dbg := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+
+	if *dbg {
+		debugMode()
+	}
 
 	apiCfg := apiConfig{
 		fileServerHits: 0,
@@ -52,4 +61,8 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 		cfg.fileServerHits++
 		next.ServeHTTP(w, r)
 	})
+}
+
+func debugMode() {
+	os.Remove("database.json")
 }
