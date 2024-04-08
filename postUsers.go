@@ -10,7 +10,7 @@ import (
 )
 
 func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
-	email, err := validateUser(w, r)
+	email, password, err := validateUser(w, r)
 	if err != nil {
 		return
 	}
@@ -22,7 +22,7 @@ func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.CreateUser(email)
+	err = db.CreateUser(email, password)
 	if err != nil {
 		log.Printf("handlerPostUsers - Error while creating user: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -48,11 +48,13 @@ func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func validateUser(w http.ResponseWriter, r *http.Request) (string, error) {
+func validateUser(w http.ResponseWriter, r *http.Request) (string, string, error) {
 
 	type requestParams struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
+
 	type errorStruct struct {
 		Error string `json:"error"`
 	}
@@ -68,16 +70,24 @@ func validateUser(w http.ResponseWriter, r *http.Request) (string, error) {
 			Error: "Something went wrong",
 		}
 		respondWithJSON(w, http.StatusInternalServerError, respBody)
-		return "", err
+		return "", "", err
 	}
 
 	if len(requestBody.Email) == 0 {
 		respBody := errorStruct{
-			Error: "Email message not provided",
+			Error: "Email not provided",
 		}
 		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return "", errors.New("email message not provided")
+		return "", "", errors.New("email message not provided")
 	}
 
-	return requestBody.Email, nil
+	if len(requestBody.Password) == 0 {
+		respBody := errorStruct{
+			Error: "Password not provided",
+		}
+		respondWithJSON(w, http.StatusBadRequest, respBody)
+		return "", "", errors.New("password not provided")
+	}
+
+	return requestBody.Email, requestBody.Password, nil
 }

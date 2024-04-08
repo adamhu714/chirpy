@@ -1,9 +1,21 @@
 package database
 
-func (db *DB) CreateUser(email string) error {
+import (
+	"log"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+func (db *DB) CreateUser(email string, password string) error {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		log.Printf("CreateUser: Error during password hashing:%s", err.Error())
+	}
+
 	newUser := User{
-		Id:    -1,
-		Email: email,
+		Id:       -1,
+		Email:    email,
+		Password: hashed,
 	}
 
 	// load db into memory
