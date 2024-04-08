@@ -14,7 +14,7 @@ type apiConfig struct {
 
 func main() {
 	const port = "8080"
-	const filepathRoot = "."
+	const filepathRoot = "./public/"
 
 	dbg := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
