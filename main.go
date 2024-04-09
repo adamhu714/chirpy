@@ -6,13 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileServerHits int
+	jwtSecret      string
 }
 
 func main() {
+	godotenv.Load()
 	const port = "8080"
 	const filepathRoot = "./public/"
 
@@ -25,6 +29,7 @@ func main() {
 
 	apiCfg := apiConfig{
 		fileServerHits: 0,
+		jwtSecret:      os.Getenv("JWT_SECRET"),
 	}
 
 	mux := http.NewServeMux()
@@ -38,7 +43,7 @@ func main() {
 	mux.HandleFunc("GET /api/chirps/{id}", handlerGetChirpsId)
 
 	mux.HandleFunc("POST /api/users", handlerPostUsers)
-	mux.HandleFunc("POST /api/login", handlerPostLogin)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerPostLogin)
 
 	corsMux := middlewareCors(mux)
 
