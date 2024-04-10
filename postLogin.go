@@ -27,7 +27,7 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respUser, err := findUser(w, email, password, db)
+	user, err := findUser(w, email, password, db)
 	if err != nil {
 		log.Printf("handlerPostLogin - Error finding user: %s", err.Error())
 		return
@@ -39,8 +39,8 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 		Id    int    `json:"id"`
 		Email string `json:"email"`
 	}{
-		Id:    respUser.Id,
-		Email: respUser.Email,
+		Id:    user.Id,
+		Email: user.Email,
 	}
 	data, err := json.Marshal(respUserNoPass)
 	if err != nil {
