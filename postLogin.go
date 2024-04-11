@@ -5,8 +5,11 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/adamhu714/chirpy/internal/database"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,14 +36,20 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Add funcctin here
+	tokenString, err := cfg.CreateToken(user, expiresInSeconds)
+	if err != nil {
+		log.Printf("handlerPostLogin - Error creating jwt token: %s", err.Error())
+		return
+	}
 
 	respUserNoPass := struct {
 		Id    int    `json:"id"`
 		Email string `json:"email"`
+		Token string `jaon:"token"`
 	}{
 		Id:    user.Id,
 		Email: user.Email,
+		Token: tokenString,
 	}
 	data, err := json.Marshal(respUserNoPass)
 	if err != nil {
@@ -51,6 +60,26 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
+}
+
+func (cfg *apiConfig) CreateToken(user database.User, expiresInSeconds int) (string, error) {
+	if expiresInSeconds == 0 || expiresInSeconds > 24*60*60 {
+		expiresInSeconds = 24 * 60 * 60
+	}
+
+	claims := &jwt.RegisteredClaims{
+		Issuer:    "chirpy",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * time.Duration(expiresInSeconds))),
+		Subject:   strconv.Itoa(user.Id),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(cfg.jwtSecret)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }
 
 func findUser(w http.ResponseWriter, email string, password string, db *database.DB) (database.User, error) {
