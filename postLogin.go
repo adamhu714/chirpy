@@ -75,7 +75,7 @@ func (cfg *apiConfig) CreateToken(user database.User, expiresInSeconds int) (str
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(cfg.jwtSecret)
+	tokenString, err := token.SignedString([]byte(cfg.jwtSecret))
 	if err != nil {
 		return "", err
 	}
