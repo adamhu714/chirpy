@@ -51,6 +51,7 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 		Email: user.Email,
 		Token: tokenString,
 	}
+
 	data, err := json.Marshal(respUserNoPass)
 	if err != nil {
 		log.Printf("Error while json marshalling: %s", err.Error())

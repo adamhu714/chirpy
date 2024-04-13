@@ -6,14 +6,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (db *DB) CreateUser(email string, password string) error {
+func (db *DB) UpdateUser(email string, password string, id int) error {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
-		log.Printf("CreateUser: Error during password hashing:%s", err.Error())
+		log.Printf("UpdateUser: Error during password hashing:%s", err.Error())
 	}
 
 	newUser := User{
-		Id:       -1,
+		Id:       id,
 		Email:    email,
 		Password: hashed,
 	}
@@ -24,10 +24,8 @@ func (db *DB) CreateUser(email string, password string) error {
 		return err
 	}
 
-	newUser.Id = len(dbStructure.Users) + 1
-
-	// add chirp to memory object
-	dbStructure.Users[newUser.Id] = newUser
+	// add user to memory object
+	dbStructure.Users[id] = newUser
 
 	// write new db to file
 	err = db.writeDB(dbStructure)

@@ -17,7 +17,7 @@ func (db *DB) CreateChirp(body string) error {
 	// add chirp to memory object
 	dbStructure.Chirps[newChirp.Id] = newChirp
 
-	//write new db to file
+	// write new db to file
 	err = db.writeDB(dbStructure)
 
 	return err

@@ -5,15 +5,20 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/adamhu714/chirpy/internal/database"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-type errorStruct struct {
-	Error string `json:"error"`
-}
+func (cfg *apiConfig) handlerPutUsers(w http.ResponseWriter, r *http.Request) {
+	id, err := cfg.GetIDFromToken(w, r)
+	if err != nil {
+		log.Printf("handlePutUsers - Error getting id from token: %s", err.Error())
+		return
+	}
 
-func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 	email, password, err := validateUser(w, r)
 	if err != nil {
 		return
@@ -26,13 +31,13 @@ func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = checkEmailUsed(w, email, db)
+	err = checkEmailUsedPutUsers(w, email, id, db)
 	if err != nil {
 		log.Printf("create user request email already used: %s", err.Error())
 		return
 	}
 
-	err = db.CreateUser(email, password)
+	err = db.UpdateUser(email, password, id)
 	if err != nil {
 		log.Printf("handlerPostUsers - Error while creating user: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -46,7 +51,7 @@ func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respUser := users[len(users)-1]
+	respUser := users[id]
 	respUserNoPass := struct {
 		Id    int    `json:"id"`
 		Email string `json:"email"`
@@ -66,7 +71,7 @@ func handlerPostUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func checkEmailUsed(w http.ResponseWriter, email string, db *database.DB) error {
+func checkEmailUsedPutUsers(w http.ResponseWriter, email string, id int, db *database.DB) error {
 	users, err := db.GetUsers()
 	if err != nil {
 		log.Printf("Error retrieving users from database: %s", err.Error())
@@ -75,6 +80,12 @@ func checkEmailUsed(w http.ResponseWriter, email string, db *database.DB) error 
 	}
 
 	for _, user := range users {
+		if user.Id == id {
+			if user.Email == email {
+				break
+			}
+			continue
+		}
 		if user.Email == email {
 			respBody := errorStruct{
 				Error: "email used",
@@ -86,42 +97,43 @@ func checkEmailUsed(w http.ResponseWriter, email string, db *database.DB) error 
 	return nil
 }
 
-func validateUser(w http.ResponseWriter, r *http.Request) (string, string, error) {
-
-	type requestParams struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+func (cfg *apiConfig) GetIDFromToken(w http.ResponseWriter, r *http.Request) (int, error) {
+	authHeaderContent := r.Header.Get("Authorization")
+	if len(authHeaderContent) < 7 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("bad jwt token provided")
 	}
 
-	var requestBody requestParams
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&requestBody)
-
+	token, err := jwt.ParseWithClaims(
+		authHeaderContent[7:],
+		jwt.RegisteredClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(cfg.jwtSecret), nil
+		},
+	)
 	if err != nil {
-		log.Printf("Error while json decoding: %s", err.Error())
-		respBody := errorStruct{
-			Error: "Something went wrong",
-		}
-		respondWithJSON(w, http.StatusInternalServerError, respBody)
-		return "", "", err
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("bad jwt token provided")
 	}
 
-	if len(requestBody.Email) == 0 {
-		respBody := errorStruct{
-			Error: "Email not provided",
-		}
-		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return "", "", errors.New("email message not provided")
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("bad jwt token provided")
 	}
 
-	if len(requestBody.Password) == 0 {
-		respBody := errorStruct{
-			Error: "Password not provided",
-		}
-		respondWithJSON(w, http.StatusBadRequest, respBody)
-		return "", "", errors.New("password not provided")
+	if claims.ExpiresAt.Unix() < time.Now().UTC().Unix() {
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("expired jwt token provided")
 	}
 
-	return requestBody.Email, requestBody.Password, nil
+	subject := claims.Subject
+
+	id, err := strconv.Atoi(subject)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("bad jwt token provided")
+	}
+
+	return id, nil
 }
