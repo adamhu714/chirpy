@@ -51,7 +51,7 @@ func (cfg *apiConfig) handlerPutUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respUser := users[id]
+	respUser := users[id-1]
 	respUserNoPass := struct {
 		Id    int    `json:"id"`
 		Email string `json:"email"`
@@ -67,7 +67,7 @@ func (cfg *apiConfig) handlerPutUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
 
@@ -106,20 +106,20 @@ func (cfg *apiConfig) GetIDFromToken(w http.ResponseWriter, r *http.Request) (in
 
 	token, err := jwt.ParseWithClaims(
 		authHeaderContent[7:],
-		jwt.RegisteredClaims{},
+		&jwt.RegisteredClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(cfg.jwtSecret), nil
 		},
 	)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		return 0, errors.New("bad jwt token provided")
+		return 0, err
 	}
 
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
-		return 0, errors.New("bad jwt token provided")
+		return 0, err
 	}
 
 	if claims.ExpiresAt.Unix() < time.Now().UTC().Unix() {
@@ -132,7 +132,7 @@ func (cfg *apiConfig) GetIDFromToken(w http.ResponseWriter, r *http.Request) (in
 	id, err := strconv.Atoi(subject)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		return 0, errors.New("bad jwt token provided")
+		return 0, err
 	}
 
 	return id, nil

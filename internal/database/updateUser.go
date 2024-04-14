@@ -25,7 +25,7 @@ func (db *DB) UpdateUser(email string, password string, id int) error {
 	}
 
 	// add user to memory object
-	dbStructure.Users[id] = newUser
+	dbStructure.Users[id-1] = newUser
 
 	// write new db to file
 	err = db.writeDB(dbStructure)

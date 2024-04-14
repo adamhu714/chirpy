@@ -117,7 +117,7 @@ func validateUserLogin(w http.ResponseWriter, r *http.Request) (string, string, 
 	type requestParams struct {
 		Email              string `json:"email"`
 		Password           string `json:"password"`
-		Expires_in_seconds int    `json:"expires_in_seconds"`
+		Expires_in_seconds string `json:"expires_in_seconds"`
 	}
 
 	var requestBody requestParams
@@ -150,5 +150,11 @@ func validateUserLogin(w http.ResponseWriter, r *http.Request) (string, string, 
 		return "", "", 0, errors.New("password not provided")
 	}
 
-	return requestBody.Email, requestBody.Password, requestBody.Expires_in_seconds, nil
+	expiresInSeconds, err := strconv.Atoi(requestBody.Expires_in_seconds)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return "", "", 0, err
+	}
+
+	return requestBody.Email, requestBody.Password, expiresInSeconds, nil
 }
