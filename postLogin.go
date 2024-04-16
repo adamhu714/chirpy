@@ -68,9 +68,6 @@ func (cfg *apiConfig) handlerPostLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) CreateToken(user database.User, expiresInSeconds int, issuer string) (string, error) {
-	if expiresInSeconds == 0 || expiresInSeconds > 24*60*60 {
-		expiresInSeconds = 24 * 60 * 60
-	}
 
 	claims := &jwt.RegisteredClaims{
 		Issuer:    issuer,
