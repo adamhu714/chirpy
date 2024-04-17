@@ -122,6 +122,11 @@ func (cfg *apiConfig) GetIDFromToken(w http.ResponseWriter, r *http.Request) (in
 		return 0, err
 	}
 
+	if claims.Issuer != "chirpy-access" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return 0, errors.New("refresh jwt token provided")
+	}
+
 	if claims.ExpiresAt.Unix() < time.Now().UTC().Unix() {
 		w.WriteHeader(http.StatusUnauthorized)
 		return 0, errors.New("expired jwt token provided")
