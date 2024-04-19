@@ -20,6 +20,7 @@ func (db *DB) endureDB() error {
 		dbStructure := DBStructure{
 			map[int]Chirp{},
 			map[int]User{},
+			map[string]bool{},
 		}
 
 		err = db.writeDB(dbStructure)
