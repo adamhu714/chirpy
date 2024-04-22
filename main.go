@@ -18,7 +18,7 @@ type apiConfig struct {
 func main() {
 	godotenv.Load()
 	const port = "8080"
-	const filepathRoot = "./public/"
+	const fileServerPathRoot = "./public/"
 
 	dbg := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
+	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(fileServerPathRoot)))))
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("/api/reset", apiCfg.resetHandler)
@@ -46,6 +46,7 @@ func main() {
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerPutUsers)
 
 	mux.HandleFunc("POST /api/login", apiCfg.handlerPostLogin)
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerPostRefresh)
 
 	corsMux := middlewareCors(mux)
 
