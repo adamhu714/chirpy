@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"time"
 )
 
 // db method creates new database file if needed
@@ -20,7 +21,7 @@ func (db *DB) endureDB() error {
 		dbStructure := DBStructure{
 			map[int]Chirp{},
 			map[int]User{},
-			map[string]bool{},
+			map[string]time.Time{},
 		}
 
 		err = db.writeDB(dbStructure)

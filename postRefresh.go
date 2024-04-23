@@ -129,14 +129,7 @@ func checkIfTokenRevoked(token string) (bool, error) {
 		return false, errors.New(msg)
 	}
 
-	tokenStatus, ok := revokedTokens[token]
-	if !ok {
-		return false, nil
-	}
+	_, ok := revokedTokens[token]
 
-	if tokenStatus {
-		return true, nil
-	}
-
-	return false, nil
+	return ok, nil
 }

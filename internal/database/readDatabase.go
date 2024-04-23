@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
 
 type Chirp struct {
@@ -18,9 +19,9 @@ type User struct {
 
 // data structure to hold database in memory
 type DBStructure struct {
-	Chirps        map[int]Chirp   `json:"chirps"`
-	Users         map[int]User    `json:"users"`
-	RevokedTokens map[string]bool `json:"revoked_tokens"`
+	Chirps        map[int]Chirp        `json:"chirps"`
+	Users         map[int]User         `json:"users"`
+	RevokedTokens map[string]time.Time `json:"revoked_tokens"`
 }
 
 // db method loads database into memory data structure object
@@ -69,11 +70,11 @@ func (db *DB) GetUsers() ([]User, error) {
 	return userSlice, nil
 }
 
-func (db *DB) GetRevokedTokens() (map[string]bool, error) {
+func (db *DB) GetRevokedTokens() (map[string]time.Time, error) {
 
 	dbStructure, err := db.loadDB()
 	if err != nil {
-		return map[string]bool{}, err
+		return map[string]time.Time{}, err
 	}
 
 	return dbStructure.RevokedTokens, nil
