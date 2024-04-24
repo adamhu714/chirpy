@@ -47,6 +47,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/login", apiCfg.handlerPostLogin)
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerPostRefresh)
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerPostRevoke)
 
 	corsMux := middlewareCors(mux)
 
