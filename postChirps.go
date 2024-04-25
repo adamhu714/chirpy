@@ -10,7 +10,13 @@ import (
 	"github.com/adamhu714/chirpy/internal/database"
 )
 
-func handlerPostChirps(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerPostChirps(w http.ResponseWriter, r *http.Request) {
+	authorId, err := cfg.GetIDFromAccessToken(w, r)
+	if err != nil {
+		log.Printf("handlerPostChirps - Error getting id from token: %s", err.Error())
+		return
+	}
+
 	body, err := validateChirp(w, r)
 	if err != nil {
 		return
@@ -24,7 +30,7 @@ func handlerPostChirps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.CreateChirp(body)
+	err = db.CreateChirp(body, authorId)
 	if err != nil {
 		log.Printf("Error adding chirp to database: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -45,6 +51,7 @@ func handlerPostChirps(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(data)

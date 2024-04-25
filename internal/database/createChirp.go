@@ -1,9 +1,10 @@
 package database
 
-func (db *DB) CreateChirp(body string) error {
+func (db *DB) CreateChirp(body string, authorId int) error {
 	newChirp := Chirp{
-		Id:   -1,
-		Body: body,
+		Id:       -1,
+		AuthorId: authorId,
+		Body:     body,
 	}
 
 	// load db into memory
