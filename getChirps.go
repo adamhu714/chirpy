@@ -27,6 +27,12 @@ func handlerGetChirpsId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if id < 1 || id > len(chirps) {
+		log.Printf("handlerGetChirpsId: invalid chirp id provided")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	data, err := json.Marshal(chirps[id-1])
 	if err != nil {
 		log.Printf("handlerGetChirpsId: Error marshalling json")
