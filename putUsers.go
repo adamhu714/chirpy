@@ -53,11 +53,13 @@ func (cfg *apiConfig) handlerPutUsers(w http.ResponseWriter, r *http.Request) {
 
 	respUser := users[id-1]
 	respUserNoPass := struct {
-		Id    int    `json:"id"`
-		Email string `json:"email"`
+		Id          int    `json:"id"`
+		Email       string `json:"email"`
+		IsChirpyRed bool   `json:"is_chirpy_red"`
 	}{
-		Id:    respUser.Id,
-		Email: respUser.Email,
+		Id:          respUser.Id,
+		Email:       respUser.Email,
+		IsChirpyRed: respUser.IsChirpyRed,
 	}
 
 	data, err := json.Marshal(respUserNoPass)

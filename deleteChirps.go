@@ -48,5 +48,5 @@ func (cfg *apiConfig) handlerDeleteChirpsId(w http.ResponseWriter, r *http.Reque
 
 	db.DeleteChirp(id)
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }

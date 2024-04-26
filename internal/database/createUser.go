@@ -13,9 +13,10 @@ func (db *DB) CreateUser(email string, password string) error {
 	}
 
 	newUser := User{
-		Id:       -1,
-		Email:    email,
-		Password: hashed,
+		Id:          -1,
+		Email:       email,
+		Password:    hashed,
+		IsChirpyRed: false,
 	}
 
 	// load db into memory

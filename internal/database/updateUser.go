@@ -23,6 +23,8 @@ func (db *DB) UpdateUser(email string, password string, id int) error {
 	if err != nil {
 		return err
 	}
+	
+	newUser.IsChirpyRed = dbStructure.Users[id].IsChirpyRed
 
 	// add user to memory object
 	dbStructure.Users[id] = newUser
