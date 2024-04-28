@@ -9,10 +9,20 @@ import (
 	"github.com/adamhu714/chirpy/internal/database"
 )
 
-func handlerPostPolkaWebhooks(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerPostPolkaWebhooks(w http.ResponseWriter, r *http.Request) {
 	userId, err := validatePostPolkaWebhook(w, r)
 	if err != nil {
 		return
+	}
+
+	authHeaderContent := r.Header.Get("Authorization")
+	if len(authHeaderContent) < 7 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if authHeaderContent[7:] != cfg.polkaApiKey {
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 
 	db, err := database.NewDB("database.json")

@@ -65,9 +65,6 @@ func validateChirp(w http.ResponseWriter, r *http.Request) (string, error) {
 	type errorStruct struct {
 		Error string `json:"error"`
 	}
-	// type cleanParams struct {
-	// 	CleanedBody string `json:"cleaned_body"`
-	// }
 
 	var requestBody requestParams
 

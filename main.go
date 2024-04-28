@@ -13,6 +13,7 @@ import (
 type apiConfig struct {
 	fileServerHits int
 	jwtSecret      string
+	polkaApiKey    string
 }
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileServerHits: 0,
 		jwtSecret:      os.Getenv("JWT_SECRET"),
+		polkaApiKey:    os.Getenv("POLKA_APIKEY"),
 	}
 
 	mux := http.NewServeMux()
@@ -50,7 +52,7 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerPostRefresh)
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerPostRevoke)
 
-	mux.HandleFunc("POST /api/polka/webhooks", handlerPostPolkaWebhooks)
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerPostPolkaWebhooks)
 
 	corsMux := middlewareCors(mux)
 
