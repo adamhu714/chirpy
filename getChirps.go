@@ -45,6 +45,8 @@ func handlerGetChirpsId(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
+	s := r.URL.Query().Get("author_id")
+
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Printf("handlerGetChirps: Error connecting database")
@@ -57,7 +59,26 @@ func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := json.Marshal(chirps)
+	respChirps := []database.Chirp{}
+
+	if s != "" {
+		authorId, err := strconv.Atoi(s)
+		if err != nil {
+			log.Printf("handlerGetChirps - error converting queried author id: %s", err.Error())
+			return
+		}
+
+		for _, chirp := range chirps {
+			if chirp.AuthorId == authorId {
+				respChirps = append(respChirps, chirp)
+			}
+		}
+
+	} else {
+		respChirps = chirps
+	}
+
+	data, err := json.Marshal(respChirps)
 	if err != nil {
 		log.Printf("handlerGetChirps: Error marshalling json")
 		return
