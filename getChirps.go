@@ -45,7 +45,8 @@ func handlerGetChirpsId(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
-	s := r.URL.Query().Get("author_id")
+	authorQuery := r.URL.Query().Get("author_id")
+	sortQuery := r.URL.Query().Get("sort")
 
 	db, err := database.NewDB("database.json")
 	if err != nil {
@@ -61,8 +62,8 @@ func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 
 	respChirps := []database.Chirp{}
 
-	if s != "" {
-		authorId, err := strconv.Atoi(s)
+	if authorQuery != "" {
+		authorId, err := strconv.Atoi(authorQuery)
 		if err != nil {
 			log.Printf("handlerGetChirps - error converting queried author id: %s", err.Error())
 			return
@@ -76,6 +77,17 @@ func handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		respChirps = chirps
+	}
+
+	if sortQuery == "desc" {
+		sortedChirps := []database.Chirp{}
+
+		n := len(respChirps)
+		for i := n - 1; i >= 0; i -= 1 {
+			sortedChirps = append(sortedChirps, respChirps[i])
+		}
+
+		respChirps = sortedChirps
 	}
 
 	data, err := json.Marshal(respChirps)
