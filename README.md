@@ -6,6 +6,7 @@ Features:
 - User and 'chirp' creation
 - Authorization with JWT refresh and access tokens
 - JSON data storage safely exposed in an internal database package
+- Subscribed users and non-subscribed users
 
 ## Getting Started
 
@@ -39,9 +40,9 @@ Execute the built binary:
 
 ## API Endpoints
 
-### /v1/users Endpoint
+### /api/users
 
-**POST** `http://localhost:<Port>/v1/users`
+**POST** `http://localhost:<Port>/api/users`
 
 Creates a new user database entry and returns it.
 
@@ -49,41 +50,20 @@ Creates a new user database entry and returns it.
 - Request Body:
 ```json
 {
-  "name": "<User Name>"
+  "email": "<User Name>",
+  "password": "<User Password>"
 }
 ```
 - Response Body:
 ```json
 {
   "id": "<User ID>",
-  "created_at": "<Timestamp>",
-  "updated_at": "<Timestamp>",
-  "name": "<User Name>",
-  "apikey": "<API Key>"
+  "email": "<User Name>",
+  "is_chirpy_red": "<Boolean Value>"
 }
 ```
 
 
-**GET** `http://localhost:<Port>/v1/users`
+**PUT** `http://localhost:<Port>/api/users`
 
-Returns a user's database entry.
-
-- Headers: Requires authentication header:
-```bash
-Authentication: APIKey <API Key>
-```
-- Request Body: None
-- Response Body:
-```json
-{
-  "id": "<User ID>",
-  "created_at": "<Timestamp>",
-  "updated_at": "<Timestamp>",
-  "name": "<User Name>",
-  "apikey": "<API Key>"
-}
-```
-
----
-### /v1/feeds Endpoint
-
+Updates a user's database details. Updates 
