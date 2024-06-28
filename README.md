@@ -3,9 +3,9 @@
 A RESTful web API that implements a backend server for a twitter-like website.
 
 Features:
-1. User and 'chirp' creation
-2. Authorization with JWT refresh and access tokens
-3. JSON data storage safely exposed in an internal database package
+- User and 'chirp' creation
+- Authorization with JWT refresh and access tokens
+- JSON data storage safely exposed in an internal database package
 
 ## Getting Started
 
@@ -36,3 +36,54 @@ Execute the built binary:
 ```bash
 ./chirpy
 ```
+
+## API Endpoints
+
+### /v1/users Endpoint
+
+**POST** `http://localhost:<Port>/v1/users`
+
+Creates a new user database entry and returns it.
+
+- Headers: None
+- Request Body:
+```json
+{
+  "name": "<User Name>"
+}
+```
+- Response Body:
+```json
+{
+  "id": "<User ID>",
+  "created_at": "<Timestamp>",
+  "updated_at": "<Timestamp>",
+  "name": "<User Name>",
+  "apikey": "<API Key>"
+}
+```
+
+
+**GET** `http://localhost:<Port>/v1/users`
+
+Returns a user's database entry.
+
+- Headers: Requires authentication header:
+```bash
+Authentication: APIKey <API Key>
+```
+- Request Body: None
+- Response Body:
+```json
+{
+  "id": "<User ID>",
+  "created_at": "<Timestamp>",
+  "updated_at": "<Timestamp>",
+  "name": "<User Name>",
+  "apikey": "<API Key>"
+}
+```
+
+---
+### /v1/feeds Endpoint
+
