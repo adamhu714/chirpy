@@ -80,9 +80,9 @@ Creates a new user database entry and returns it.
 - Response Body:
 ```json
 {
-  "id": <User ID>,
+  "id": "<User ID>", // integer
   "email": "<User Name>",
-  "is_chirpy_red": <Boolean Value>
+  "is_chirpy_red": "<Boolean Value>" // boolean
 }
 ```
 
@@ -104,9 +104,9 @@ Authentication: Bearer <Access Token>
 - Response Body:
 ```json
 {
-  "id": <User ID>,
+  "id": "<User ID>", // integer
   "email": "<User Name>",
-  "is_chirpy_red": <Boolean Value>
+  "is_chirpy_red": "<Boolean Value>" // boolean
 }
 ```
 
@@ -128,9 +128,9 @@ Authenticates a user and returns to them new access and refresh tokens.
 - Response Body:
 ```json
 {
-  "id": <User ID>,
+  "id": "<User ID>", // integer
   "email": "<User Name>",
-  "is_chirpy_red": <Boolean Value>,
+  "is_chirpy_red": "<Boolean Value>", // boolean
   "token": "<JWT Access Token>",
   "refresh_token": "<JWT Refresh Token>"
 }
@@ -156,8 +156,8 @@ Authentication: Bearer <Access Token>
 - Response Body:
 ```json
 {
-  "id": <Chirp ID>,
-  "author_id": "<User ID>",
+  "id": "<Chirp ID>", // integer
+  "author_id": "<User ID>", // integer
   "body": "<Chirp Message>"
 }
 ```
@@ -176,8 +176,8 @@ For example: `http://localhost:8080/api/chirps?author_id=1`
 ```json
 [
   {
-    "id": <Chirp ID>,
-    "author_id": <User ID>,
+    "id": "<Chirp ID>", // integer
+    "author_id": "<User ID>", // integer
     "body": "<Chirp Message>"
   }
 ]
@@ -192,8 +192,8 @@ Returns a specific chirp database entry with the ID that is provided in the URL.
 - Response Body:
 ```json
 {
-  "id": <Chirp ID>,
-  "author_id": <User ID>,
+  "id": "<Chirp ID>", // integer
+  "author_id": "<User ID>", // integer
   "body": "<Chirp Message>"
 }
 ```
@@ -258,7 +258,7 @@ Authentication: Bearer <Polka API Key>
 {
   "event": "user.upgraded",
   "data": {
-    "user_id": <UserID>
+    "user_id": "<UserID>" // integer
   }
 }
 ```
