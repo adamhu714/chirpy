@@ -4,9 +4,10 @@ A RESTful web API that implements a backend server in Golang for a twitter-like 
 
 Features:
 - JSON data storage safely exposed in an internal database package
-- User and 'chirp' creation and storage
+- User and 'chirp' creation, storage and management
 - Authorization with JWT refresh and access tokens
 - Subscribed users and non-subscribed users
+- Middleware for web app pages 
 
 ## Contents
 * [Getting Started](#getting-started)<br>
@@ -14,7 +15,17 @@ Features:
   * [Environment Variables](#environment-variables)<br>
   * [Building and Running The Application](#building-and-running-the-application)<br>
 * [API Endpoints](#api-endpoints)<br>
-* [Demonstration](#demonstration)
+  * [/api/users](#apiusers)<br>
+  * [/api/login](#apilogin)<br>
+  * [/api/chirps](#apichirps)<br>
+  * [/api/refresh](#apirefresh)<br>
+  * [/api/revoke](#apirevoke)<br>
+  * [/api/healthz](#apihealthz)<br>
+  * [/api/reset](#apireset)
+* [Webpages](#webpages)<br>
+  * [/app/index.html](#appindexhtml)
+  * [/app/assets/logo.png](#appassetslogopng)
+  * [/admin/metrics](#adminmetrics)
 
 ## Getting Started
 ### Prerequisites
@@ -48,6 +59,10 @@ Execute the built binary:
 * [/api/users](#apiusers)<br>
 * [/api/login](#apilogin)<br>
 * [/api/chirps](#apichirps)<br>
+* [/api/refresh](#apirefresh)<br>
+* [/api/revoke](#apirevoke)<br>
+* [/api/healthz](#apihealthz)<br>
+* [/api/reset](#apireset)
 
 ### /api/users
 **POST** `http://localhost:<Port>/api/users`
@@ -65,9 +80,9 @@ Creates a new user database entry and returns it.
 - Response Body:
 ```json
 {
-  "id": "<User ID>",
+  "id": <User ID>,
   "email": "<User Name>",
-  "is_chirpy_red": "<Boolean Value>"
+  "is_chirpy_red": <Boolean Value>
 }
 ```
 
@@ -89,9 +104,9 @@ Authentication: Bearer <Access Token>
 - Response Body:
 ```json
 {
-  "id": "<User ID>",
+  "id": <User ID>,
   "email": "<User Name>",
-  "is_chirpy_red": "<Boolean Value>"
+  "is_chirpy_red": <Boolean Value>
 }
 ```
 
@@ -113,9 +128,9 @@ Authenticates a user and returns to them new access and refresh tokens.
 - Response Body:
 ```json
 {
-  "id": "<User ID>",
+  "id": <User ID>,
   "email": "<User Name>",
-  "is_chirpy_red": "<Boolean Value>",
+  "is_chirpy_red": <Boolean Value>,
   "token": "<JWT Access Token>",
   "refresh_token": "<JWT Refresh Token>"
 }
@@ -141,7 +156,7 @@ Authentication: Bearer <Access Token>
 - Response Body:
 ```json
 {
-  "id": "<Chirp ID>",
+  "id": <Chirp ID>,
   "author_id": "<User ID>",
   "body": "<Chirp Message>"
 }
@@ -161,8 +176,8 @@ For example: `http://localhost:8080/api/chirps?author_id=1`
 ```json
 [
   {
-    "id": "<Chirp ID>",
-    "author_id": "<User ID>",
+    "id": <Chirp ID>,
+    "author_id": <User ID>,
     "body": "<Chirp Message>"
   }
 ]
@@ -177,8 +192,8 @@ Returns a specific chirp database entry with the ID that is provided in the URL.
 - Response Body:
 ```json
 {
-  "id": "<Chirp ID>",
-  "author_id": "<User ID>",
+  "id": <Chirp ID>,
+  "author_id": <User ID>,
   "body": "<Chirp Message>"
 }
 ```
@@ -195,3 +210,107 @@ Authentication: Bearer <Access Token>
 - Response Body: None
 
 *[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+### /api/refresh
+**POST** `http://localhost:<Port>/api/refresh`
+
+Creates a new JWT access token and returns it in the response.
+
+- Headers: Requires authentication header:
+```bash
+Authentication: Bearer <Refresh Token>
+```
+- Request Body: None
+- Response Body:
+```json
+{
+  "token": "<Access Token>"
+}
+```
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+### /api/revoke
+**POST** `http://localhost:<Port>/api/revoke`
+
+Revokes a JWT token.
+
+- Headers: Requires authentication header:
+```bash
+Authentication: Bearer <JWT Token>
+```
+- Request Body: None
+- Response Body: None
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+### /api/polka/webhooks
+**POST** `http://localhost:<Port>/api/polka/webhooks`
+
+Webhook endpoint for polka service that updates user's subscription status.
+
+- Headers: Requires authentication header:
+```bash
+Authentication: Bearer <Polka API Key>
+```
+- Request Body:
+```json
+{
+  "event": "user.upgraded",
+  "data": {
+    "user_id": <UserID>
+  }
+}
+```
+- Response Body: None
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+### /api/healthz
+**GET** `http://localhost:<Port>/api/healthz`
+
+Returns status of the web server.
+
+- Headers: None
+- Request Body: None
+- Response Body: 
+```json
+OK
+```
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+### /api/reset
+**GET** `http://localhost:<Port>/admin/metrics`
+
+Resets the middleware counter for the number of the times the app pages have been viewed.
+
+- Headers: None
+- Request Body: None
+- Response Body: None
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Endpoints](#api-endpoints)*<br>
+
+## Webpages
+
+* [/app/index.html](#appindexhtml)
+* [/app/assets/logo.png](#appassetslogopng)
+* [/admin/metrics](#adminmetrics)
+
+### /app/index.html
+
+Serves the web app welcome page.
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Webpages](#webpages)*<br>
+
+### /app/assets/logo.png
+
+Serves the web app logo.
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Webpages](#webpages)*<br>
+
+### /admin/metrics
+
+Displays how many times an app page is viewed.
+
+*[Back To Top](#chirpy)* &nbsp; *[Back To Webpages](#webpages)*<br>
