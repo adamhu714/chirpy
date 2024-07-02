@@ -78,7 +78,7 @@ Creates a new user database entry and returns it.
 }
 ```
 - Response Body:
-```js
+```json
 {
   "id": <User ID>,
   "email": "<User Name>",
