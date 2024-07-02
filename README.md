@@ -10,6 +10,9 @@ Features:
 
 ## Contents
 * [Getting Started](#getting-started)<br>
+  * [Prerequisites](#prerequisites)<br>
+  * [Environment Variables](#environment-variables)<br>
+  * [Building and Running The Application](#building-and-running-the-application)<br>
 * [API Endpoints](#api-endpoints)<br>
 * [Demonstration](#demonstration)
 
