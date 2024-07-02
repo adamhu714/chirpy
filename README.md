@@ -274,7 +274,7 @@ Returns status of the web server.
 - Headers: None
 - Request Body: None
 - Response Body: 
-```json
+```bash
 OK
 ```
 
