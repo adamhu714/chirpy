@@ -40,7 +40,7 @@ POLKA_APIKEY=<Your Polka API Key>
 ```
 
 ### Building and Running the Application
-From the root directory, use the Go command-line tool to build the executable:
+From the project root directory, use the Go command-line tool to build the executable:
 
 ```bash
 go build -o chirpy
